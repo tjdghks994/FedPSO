@@ -263,14 +263,6 @@ if __name__ == "__main__":
                 global_best_model = client.resp_best_model(gid)
 
         server_model = global_best_model
-
-        # print("server {} / {} fitting".format(epoch+1, EPOCHS))
-        # server_model.fit(x=x_train, y=y_train,
-        #         epochs=CLIENT_EPOCHS,
-        #         batch_size=BATCH_SIZE,
-        #         verbose=1,
-        #         validation_split=0.1,
-        #         )
         
         print("server {}/{}  evaluate".format(epoch+1, EPOCHS))
         server_evaluate_acc.append(server_model.evaluate(x_test, y_test, batch_size=BATCH_SIZE, verbose=1))

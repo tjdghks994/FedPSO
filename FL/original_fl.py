@@ -1,5 +1,5 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 
 from keras.datasets import cifar10
@@ -20,14 +20,14 @@ import csv
 
 # client config
 NUMOFCLIENTS = 10 # number of client(as particles)
-SELECT_CLIENTS = 1.0 # c
+SELECT_CLIENTS = 0.5 # c
 EPOCHS = 30 # number of total iteration
 CLIENT_EPOCHS = 5 # number of each client's iteration
 BATCH_SIZE = 10 # Size of batches to train on
-DROP_RATE = 10
+DROP_RATE = 0
+CNT = 1
 
 # model config 
-# LOSS = 'sparse_categorical_crossentropy' # Loss function
 LOSS = 'categorical_crossentropy' # Loss function
 NUMOFCLASSES = 10 # Number of classes
 lr = 0.0025
@@ -36,8 +36,8 @@ OPTIMIZER = SGD(lr=lr, momentum=0.9, decay=lr/(EPOCHS*CLIENT_EPOCHS), nesterov=F
 
 
 def write_csv(method_name, list):
-    file_name = 'randomDrop_{drop}%_output_{name}_C_{c}_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
-    file_name = file_name.format(drop=DROP_RATE, name=method_name, c=SELECT_CLIENTS, lr=lr, cli=NUMOFCLIENTS, cli_epoch=CLIENT_EPOCHS, epochs=EPOCHS, batch=BATCH_SIZE),
+    file_name = 'mnist_output/randomDrop_{drop}%_output_{name}_C_{c}_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
+    file_name = file_name.format(folder="origin_drop",drop=DROP_RATE, name=method_name, c=SELECT_CLIENTS, lr=lr, cli=NUMOFCLIENTS, cli_epoch=CLIENT_EPOCHS, epochs=EPOCHS, batch=BATCH_SIZE)
     f = open(file_name, 'w', encoding='utf-8', newline='')
     wr = csv.writer(f)
     
@@ -47,11 +47,11 @@ def write_csv(method_name, list):
 
 
 def load_dataset():
-    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+    # (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
     
-    # (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-    # X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
-    # X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
+    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+    X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
+    X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
     
     X_train = X_train.astype('float32')
     X_test = X_test.astype('float32')
@@ -70,23 +70,10 @@ def init_model(train_data_shape):
 
     return fl_model
 
-# def client_data_config(x_train, y_train):
-#     '''iid'''
-#     client_data = [() for _ in range(NUMOFCLIENTS)]
-#     num_of_each_dataset = int(x_train.shape[0] / NUMOFCLIENTS)
-    
-#     for i in range(NUMOFCLIENTS):
-#         #new_x_train = x_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset]
-#         #new_y_train = y_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset]
-#         #print(i, new_x_train.shape)
-#         client_data[i] = (x_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset], y_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset])
-
-#     return client_data
 def client_data_config(x_train, y_train):
-    '''non-iid'''
     client_data = [() for _ in range(NUMOFCLIENTS)] # () for _ in range(NUMOFCLIENTS)
     num_of_each_dataset = int(x_train.shape[0] / NUMOFCLIENTS)
-    #client_index = []
+    
     for i in range(NUMOFCLIENTS):
         split_data_index = []
         while len(split_data_index) < num_of_each_dataset:
@@ -94,14 +81,8 @@ def client_data_config(x_train, y_train):
             if item not in split_data_index:
                 split_data_index.append(item)
         
-        #for k in range(len(split_data_index)):
         new_x_train = np.asarray([x_train[k] for k in split_data_index])
-        # new_x_train = np.repeat(new_x_train, NUMOFCLIENTS, axis=0)
-        # np.random.shuffle(new_x_train)
-
         new_y_train = np.asarray([y_train[k] for k in split_data_index])
-        # new_y_train = np.repeat(new_y_train, NUMOFCLIENTS, axis=0)
-        # np.random.shuffle(new_y_train)
     
         client_data[i] = (new_x_train, new_y_train)
 
@@ -128,7 +109,7 @@ def client_update(index, client, now_epoch, avg_weight):
     client.fit(client_data[index][0], client_data[index][1],
         epochs=CLIENT_EPOCHS,
         batch_size=BATCH_SIZE,
-        verbose=0,
+        verbose=1,
         validation_split=0.2,
     )
 
@@ -165,7 +146,7 @@ if __name__ == "__main__":
             recv_model = client_update(index, client, epoch, avg_weight)
             
             rand = random.randint(0,99)
-            drop_communication = range(10)
+            drop_communication = range(DROP_RATE)
             if rand not in drop_communication:
                 server_weight.append(copy.deepcopy(recv_model.get_weights()))
         

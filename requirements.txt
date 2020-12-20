@@ -1,3 +1,2 @@
 keras
 matplotlib
-nest_asyncio

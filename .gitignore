@@ -1,5 +1,9 @@
 checkpoint/
 output/
+origin_drop/
+origin_drop_10/
+pso_drop/
+mnist_output/
 test_case/
 *.png
 *.csv

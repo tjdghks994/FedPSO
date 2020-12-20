@@ -1,18 +1,18 @@
 version: '3' 
 
 services: 
-    # fl: 
-    #     image: tjdghks994/fl
-    #     network_mode: host
-    #     volumes: 
-    #     - .:/fl
-    #     command: bash -c "sleep 1; python /fl/FL/original_fl.py"
-    pso:
+    fl: 
         image: tjdghks994/fl
         network_mode: host
         volumes: 
         - .:/fl
-        command: bash -c "sleep 1; python /fl/FL/pso_fl.py"
+        command: bash -c "sleep 1; python /fl/FL/original_fl.py"
+    # pso:
+    #     image: tjdghks994/fl
+    #     network_mode: host
+    #     volumes: 
+    #     - .:/fl
+    #     command: bash -c "sleep 1; python /fl/FL/pso_fl.py"
     # test:
     #     image: tjdghks994/fl
     #     network_mode: host

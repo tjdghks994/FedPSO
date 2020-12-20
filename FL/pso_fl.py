@@ -26,22 +26,19 @@ BATCH_SIZE = 10 # Size of batches to train on
 ACC = 0.3 # 0.4
 LOCAL_ACC = 0.7 # 0.6
 GLOBAL_ACC = 1.4 # 1.0
-DROP_RATE = 10
+# 0.3 0.7 1.4 결과 좋음
+DROP_RATE = 0
 
 
 # model config 
-# LOSS = 'sparse_categorical_crossentropy' # Loss function
 LOSS = 'categorical_crossentropy' # Loss function
 NUMOFCLASSES = 10 # Number of classes
 lr = 0.0025
-# OPTIMIZER = SGD(lr=0.15, decay=0.99)
 OPTIMIZER = SGD(lr=lr, momentum=0.9, decay=lr/(EPOCHS*CLIENT_EPOCHS), nesterov=False) # lr = 0.015, 67 ~ 69%
-# OPTIMIZER = SGD(lr=lr, momentum=0.9, decay=lr/EPOCHS, nesterov=False) # 67 ~ 69%
-# OPTIMIZER = Adam(learning_rate=lr)
 
 
 def write_csv(method_name, list):
-    file_name = 'randomDrop_{drop}%_output_{name}_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
+    file_name = 'mnist_randomDrop_{drop}%_output_{name}_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
     file_name = file_name.format(drop=DROP_RATE, name=method_name, lr=lr, cli=NUMOFCLIENTS, cli_epoch=CLIENT_EPOCHS, epochs=EPOCHS, batch=BATCH_SIZE)
     f = open(file_name, 'w', encoding='utf-8', newline='')
     wr = csv.writer(f)
@@ -52,11 +49,11 @@ def write_csv(method_name, list):
 
 
 def load_dataset():
-    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+    # (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
-    # (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-    # X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
-    # X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
+    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+    X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
+    X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
     
     X_train = X_train.astype('float32')
     X_test = X_test.astype('float32')
@@ -77,21 +74,7 @@ def init_model(train_data_shape):
 
     return init_model
 
-
-# def client_data_config(x_train, y_train):
-#     '''iid'''
-#     client_data = [() for _ in range(NUMOFCLIENTS)]
-#     num_of_each_dataset = int(x_train.shape[0] / NUMOFCLIENTS)
-    
-#     for i in range(NUMOFCLIENTS):
-#         #new_x_train = x_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset]
-#         #new_y_train = y_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset]
-#         #print(i, new_x_train.shape)
-#         client_data[i] = (x_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset], y_train[i*num_of_each_dataset:(i+1)*num_of_each_dataset])
-
-#     return client_data
 def client_data_config(x_train, y_train):
-    '''non-iid'''
     client_data = [() for _ in range(NUMOFCLIENTS)] # () for _ in range(NUMOFCLIENTS)
     num_of_each_dataset = int(x_train.shape[0] / NUMOFCLIENTS)
 
@@ -182,7 +165,6 @@ class particle():
         if self.global_best_score >= train_score_loss:
             self.local_best_model = step_model
             
-        # return step_model, train_score_acc
         # return step_model, train_score_loss
         return self.particle_id, train_score_loss
     
@@ -230,10 +212,8 @@ if __name__ == "__main__":
     client_data = client_data_config(x_train, y_train)
     pso_model = []
     for i in range(NUMOFCLIENTS):
-        # pso_model.append(particle(client=init_model(train_data_shape=x_train.shape[1:]), x_train=x_train, y_train=y_train))
         pso_model.append(particle(particle_num=i, client=init_model(train_data_shape=x_train.shape[1:]), x_train=client_data[i][0], y_train=client_data[i][1]))
 
-    # avg_weight = np.zeros_like(server_model.get_weights())
     server_evaluate_acc = []
     global_best_model = None
     global_best_score = 0.0
@@ -244,7 +224,6 @@ if __name__ == "__main__":
 
         for client in pso_model:
             if epoch != 0:
-                # client.update_global_model(global_best_model, global_best_score)
                 client.update_global_model(server_model, global_best_score)
             
             # local_model, train_score = client.train_particle()
@@ -256,7 +235,6 @@ if __name__ == "__main__":
                 server_result.append([pid, train_score])
         
         # best score 비교 후 최적의 모델 재전송
-        # global_best_model, global_best_score = get_best_score_by_loss(server_result)
         gid, global_best_score = get_best_score_by_loss(server_result)
         for client in pso_model:
             if client.resp_best_model(gid) != None:

@@ -5,8 +5,9 @@ origin_drop_10/
 pso_drop/
 mnist_output/
 test_case/
-draw_graph.py
+.vscode/
 *.png
+!figure/*
 *.csv
 
 # Byte-compiled / optimized / DLL files

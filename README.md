@@ -6,4 +6,34 @@ In this study, we propose the algorithm using particle swarm optimization algori
 
 ## Figure
 
-Please Check figure folder.
+<img src="figure/fl_protocol_by_sh.png" width="70%" height="70%" title="FL Protocol"></img>
+
+Figure 1. Federated Learning Protocol
+
+<img src="figure/fedavg_sh.png" width="70%" height="70%" title="FedAvg"></img>
+
+Figure 2. The weighted aggregation process of Federated Learning (such as FedAvg) obtains the average of the w_t value received from the client of K from the server and sends the updated w_(t+1) back to the client.
+
+<img src="figure/fedpso_sh.png" width="70%" height="70%" title="FedPSO"></img>
+
+Figure 3. The weight update process of FedPSO; the server receives a client's score and requests a learning model from the client who submits the optimal value to set it as a global model.
+
+<img src="figure/acc_revise.png" width="70%" height="70%" title="Accuracy Comparison"></img>
+
+Figure 4. Accuracy comparison of several algorithm
+
+<img src="figure/acc_revise.png" width="70%" height="70%" title="Accuracy Comparison"></img>
+
+Figure 5. Communication Cost comparison of several algorithm
+
+<img src="figure/mnist_acc.png" width="70%" height="70%" title="MNIST Accuracy"></img>
+
+Figure 6. Comparison of learning accuracy using MNIST
+
+<img src="figure/failure_fedavg.png" width="70%" height="70%" title="Failure FedAvg"></img>
+
+Figure 7. Comparison of FedAvg(C=1.0) test accuracy in unstable network conditions 
+
+<img src="figure/failure_fedpso.png" width="70%" height="70%" title="Failure FedPSO"></img>
+
+Figure 8. Comparison of FedPSO test accuracy in unstable network conditions

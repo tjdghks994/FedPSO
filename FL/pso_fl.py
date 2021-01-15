@@ -74,6 +74,7 @@ def init_model(train_data_shape):
 
     return init_model
 
+
 def client_data_config(x_train, y_train):
     client_data = [() for _ in range(NUMOFCLIENTS)] # () for _ in range(NUMOFCLIENTS)
     num_of_each_dataset = int(x_train.shape[0] / NUMOFCLIENTS)
@@ -189,6 +190,7 @@ def get_best_score_by_loss(step_result):
             temp_index = index
 
     return step_result[temp_index][0], step_result[temp_index][1]
+
 
 def get_best_score_by_acc(step_result):
     # step_result = [[step_model, train_socre_acc],...]

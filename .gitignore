@@ -5,6 +5,7 @@ origin_drop_10/
 pso_drop/
 mnist_output/
 test_case/
+draw_graph.py
 *.png
 *.csv
 

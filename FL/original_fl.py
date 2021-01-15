@@ -70,6 +70,7 @@ def init_model(train_data_shape):
 
     return fl_model
 
+
 def client_data_config(x_train, y_train):
     client_data = [() for _ in range(NUMOFCLIENTS)] # () for _ in range(NUMOFCLIENTS)
     num_of_each_dataset = int(x_train.shape[0] / NUMOFCLIENTS)
@@ -87,6 +88,7 @@ def client_data_config(x_train, y_train):
         client_data[i] = (new_x_train, new_y_train)
 
     return client_data
+
 
 def fedAVG(server_weight):
     avg_weight = np.array(server_weight[0])

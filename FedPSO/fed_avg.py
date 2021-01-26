@@ -47,11 +47,13 @@ def write_csv(method_name, list):
 
 
 def load_dataset():
-    # (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+    # Code for experimenting with CIFAR-10 datasets.
+    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
     
-    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-    X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
-    X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
+    # Code for experimenting with MNIST datasets.
+    # (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+    # X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
+    # X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
     
     X_train = X_train.astype('float32')
     X_test = X_test.astype('float32')
@@ -155,7 +157,7 @@ if __name__ == "__main__":
         avg_weight = fedAVG(server_weight)
 
         server_model.set_weights(avg_weight)
-        print("server {}/{}  evaluate".format(epoch + 1, EPOCHS))
+        print("server {}/{} evaluate".format(epoch + 1, EPOCHS))
         server_evaluate_acc.append(server_model.evaluate(x_test, y_test, batch_size=BATCH_SIZE, verbose=1))
 
     write_csv("original_FL", server_evaluate_acc)

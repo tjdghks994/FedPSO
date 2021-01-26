@@ -26,7 +26,7 @@ BATCH_SIZE = 10 # Size of batches to train on
 ACC = 0.3 # 0.4
 LOCAL_ACC = 0.7 # 0.6
 GLOBAL_ACC = 1.4 # 1.0
-# 0.3 0.7 1.4 결과 좋음
+
 DROP_RATE = 0
 
 
@@ -49,11 +49,13 @@ def write_csv(method_name, list):
 
 
 def load_dataset():
-    # (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+    # Code for experimenting with CIFAR-10 datasets.
+    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
-    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-    X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
-    X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
+    # Code for experimenting with MNIST datasets.
+    # (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+    # X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
+    # X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
     
     X_train = X_train.astype('float32')
     X_test = X_test.astype('float32')
@@ -244,7 +246,7 @@ if __name__ == "__main__":
 
         server_model = global_best_model
         
-        print("server {}/{}  evaluate".format(epoch+1, EPOCHS))
+        print("server {}/{} evaluate".format(epoch+1, EPOCHS))
         server_evaluate_acc.append(server_model.evaluate(x_test, y_test, batch_size=BATCH_SIZE, verbose=1))
 
     write_csv("PSO_FL", server_evaluate_acc)

@@ -25,6 +25,7 @@ services:
     #     volumes: 
     #     - .:/fl
     #     command: bash -c "sleep 1; python /fl/FedPSO/fed_avg.py"
+    
     fedPSO:
         image: tjdghks994/fedpso
         network_mode: host

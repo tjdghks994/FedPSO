@@ -25,7 +25,6 @@ EPOCHS = 30 # number of total iteration
 CLIENT_EPOCHS = 5 # number of each client's iteration
 BATCH_SIZE = 10 # Size of batches to train on
 DROP_RATE = 0
-CNT = 1
 
 # model config 
 LOSS = 'categorical_crossentropy' # Loss function
@@ -36,7 +35,7 @@ OPTIMIZER = SGD(lr=lr, momentum=0.9, decay=lr/(EPOCHS*CLIENT_EPOCHS), nesterov=F
 
 
 def write_csv(method_name, list):
-    file_name = 'mnist_output/randomDrop_{drop}%_output_{name}_C_{c}_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
+    file_name = '{name}_CIFAR10_randomDrop_{drop}%_output_C_{c}_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
     file_name = file_name.format(folder="origin_drop",drop=DROP_RATE, name=method_name, c=SELECT_CLIENTS, lr=lr, cli=NUMOFCLIENTS, cli_epoch=CLIENT_EPOCHS, epochs=EPOCHS, batch=BATCH_SIZE)
     f = open(file_name, 'w', encoding='utf-8', newline='')
     wr = csv.writer(f)
@@ -160,4 +159,4 @@ if __name__ == "__main__":
         print("server {}/{} evaluate".format(epoch + 1, EPOCHS))
         server_evaluate_acc.append(server_model.evaluate(x_test, y_test, batch_size=BATCH_SIZE, verbose=1))
 
-    write_csv("original_FL", server_evaluate_acc)
+    write_csv("FedAvg", server_evaluate_acc)

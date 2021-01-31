@@ -27,7 +27,7 @@ ACC = 0.3 # 0.4
 LOCAL_ACC = 0.7 # 0.6
 GLOBAL_ACC = 1.4 # 1.0
 
-DROP_RATE = 0
+DROP_RATE = 0 # 0 ~ 1.0 float value
 
 
 # model config 
@@ -37,9 +37,16 @@ lr = 0.0025
 OPTIMIZER = SGD(lr=lr, momentum=0.9, decay=lr/(EPOCHS*CLIENT_EPOCHS), nesterov=False) # lr = 0.015, 67 ~ 69%
 
 
-def write_csv(method_name, list):
-    file_name = 'mnist_randomDrop_{drop}%_output_{name}_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
-    file_name = file_name.format(drop=DROP_RATE, name=method_name, lr=lr, cli=NUMOFCLIENTS, cli_epoch=CLIENT_EPOCHS, epochs=EPOCHS, batch=BATCH_SIZE)
+def write_csv(algorithm_name, list):
+    """
+    Make the result a csv file.
+
+    Args: 
+        algorithm_name: algorithm name, string type ex) FedPSO, FedAvg
+        list: accuracy list, list type
+    """
+    file_name = '{name}_CIFAR10_randomDrop_{drop}%_output_LR_{lr}_CLI_{cli}_CLI_EPOCHS_{cli_epoch}_TOTAL_EPOCHS_{epochs}_BATCH_{batch}.csv'
+    file_name = file_name.format(drop=DROP_RATE, name=algorithm_name, lr=lr, cli=NUMOFCLIENTS, cli_epoch=CLIENT_EPOCHS, epochs=EPOCHS, batch=BATCH_SIZE)
     f = open(file_name, 'w', encoding='utf-8', newline='')
     wr = csv.writer(f)
     
@@ -49,6 +56,12 @@ def write_csv(method_name, list):
 
 
 def load_dataset():
+    """
+    This function loads the dataset provided by Keras and pre-processes it in a form that is good to use for learning.
+    
+    Return:
+        (X_train, Y_train), (X_test, Y_test)
+    """
     # Code for experimenting with CIFAR-10 datasets.
     (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
@@ -69,6 +82,15 @@ def load_dataset():
 
 
 def init_model(train_data_shape):
+    """
+    Create a model for learning.
+
+    Args:
+        train_data_shape: Image shape, ex) CIFAR10 == (32, 32, 3)
+
+    Returns:
+        Sequential model
+    """
     model = Model(loss=LOSS, optimizer=OPTIMIZER, classes=NUMOFCLASSES)
     init_model = model.fl_paper_model(train_shape=train_data_shape)
     # init_model = model.deep_model(train_shape=train_data_shape)
@@ -78,6 +100,16 @@ def init_model(train_data_shape):
 
 
 def client_data_config(x_train, y_train):
+    """
+    Split the data set to each client. Split randomly selected data from the total dataset by the same size.
+    
+    Args:
+        x_train: Image data to be used for learning
+        y_train: Label data to be used for learning
+
+    Returns:
+        A dataset consisting of a list type of client sizes
+    """
     client_data = [() for _ in range(NUMOFCLIENTS)] # () for _ in range(NUMOFCLIENTS)
     num_of_each_dataset = int(x_train.shape[0] / NUMOFCLIENTS)
 
@@ -127,13 +159,13 @@ class particle():
 
         # set each epoch's weight
         step_model = self.particle_model
-        # step_model = self.global_best_model
         step_weight = step_model.get_weights()
         
         # new_velocities = [None] * len(step_weight)
         new_weight = [None] * len(step_weight)
         local_rand, global_rand = random.random(), random.random()
 
+        # PSO algorithm applied to weights
         for index, layer in enumerate(step_weight):
             new_v = self.parm['acc'] * self.velocities[index]
             new_v = new_v + self.parm['local_acc'] * local_rand * (self.local_best_model.get_weights()[index] - layer)
@@ -168,7 +200,6 @@ class particle():
         if self.global_best_score >= train_score_loss:
             self.local_best_model = step_model
             
-        # return step_model, train_score_loss
         return self.particle_id, train_score_loss
     
     def update_global_model(self, global_best_model, global_best_score):
@@ -234,11 +265,13 @@ if __name__ == "__main__":
             # server_result.append([local_model, train_score])
             pid, train_score = client.train_particle()
             rand = random.randint(0,99)
+
+            # Randomly dropped data sent to the server
             drop_communication = range(DROP_RATE)
             if rand not in drop_communication:
                 server_result.append([pid, train_score])
         
-        # best score 비교 후 최적의 모델 재전송
+        # Send the optimal model to each client after the best score comparison
         gid, global_best_score = get_best_score_by_loss(server_result)
         for client in pso_model:
             if client.resp_best_model(gid) != None:
@@ -249,4 +282,4 @@ if __name__ == "__main__":
         print("server {}/{} evaluate".format(epoch+1, EPOCHS))
         server_evaluate_acc.append(server_model.evaluate(x_test, y_test, batch_size=BATCH_SIZE, verbose=1))
 
-    write_csv("PSO_FL", server_evaluate_acc)
+    write_csv("FedPSO", server_evaluate_acc)

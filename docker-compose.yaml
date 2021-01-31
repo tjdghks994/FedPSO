@@ -1,14 +1,14 @@
 version: '3' 
 
 services: 
-    fl: 
-        image: tjdghks994/fl
+    fedAvg: 
+        image: tjdghks994/fedpso
         network_mode: host
         volumes: 
         - .:/fl
         command: bash -c "sleep 1; python /fl/FedPSO/fed_avg.py"
-    pso:
-        image: tjdghks994/fl
+    fedPSO:
+        image: tjdghks994/fedpso
         network_mode: host
         volumes: 
         - .:/fl

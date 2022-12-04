@@ -65,7 +65,7 @@ Figure 3. The weight update process of FedPSO; the server receives a client's sc
 
 Figure 4. Accuracy comparison of several algorithm
 
-<img src="figure/acc_revise.png" width="70%" height="70%" title="Accuracy Comparison"></img>
+<img src="figure/cost_revise.png" width="70%" height="70%" title="Accuracy Comparison"></img>
 
 Figure 5. Communication Cost comparison of several algorithm
 
